@@ -1,0 +1,31 @@
+version: '3.9'
+
+
+services:
+  keycloak:
+    container_name: ms-keycloak
+    image: quay.io/keycloak/keycloak:22.0.3
+    environment:
+      - KEYCLOAK_ADMIN
+      - KEYCLOAK_ADMIN_PASSWORD
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=db
+      - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
+      - KC_DB_USERNAME=${POSTGRES_USER}
+      - KC_DB_URL_DATABASE=${POSTGRES_DB}
+    ports:
+      - "8080:${KEYCLOAK_PORT}"
+    command: start-dev --metrics-enabled=true
+    depends_on:
+      - db
+  db:
+    container_name: ms-keycloak-db
+    image: postgres:16
+    restart: always
+    tty: true
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+    volumes:
+      - ./.docker/pgdata:/var/lib/postgresql/data
